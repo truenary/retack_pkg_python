@@ -13,7 +13,7 @@ You can install the Retack SDK using pip:
     from retackAI_sdk import retack_client
 
     # Initialize RetackConfig and RetackClient
-    retack_config = retack_client.RetackConfig(api_key="V-oJTkB3fF2Hdnqz40jDOtEn")
+    retack_config = retack_client.RetackConfig(env_key="Valid Environment Key")
     retack_client_instance = retack_client.RetackClient(retack_config)
 
     try:
