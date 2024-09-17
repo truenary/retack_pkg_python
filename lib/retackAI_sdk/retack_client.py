@@ -13,7 +13,7 @@ class RetackClient:
 
         headers = {
             "Content-Type": "application/json",
-            "ENV-KEY": self.retrack_config.api_key
+            "ENV-KEY": self.retrack_config.env_key
         }
 
         body = {
@@ -32,8 +32,8 @@ class RetackClient:
             return False
 
 class RetackConfig:
-    def __init__(self, api_key):
-        self.api_key = api_key
+    def __init__(self, env_key):
+        self.env_key = env_key
 
 class UserContext:
     def __init__(self, username, extras):
