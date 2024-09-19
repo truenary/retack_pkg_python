@@ -8,7 +8,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Truenary',
     author_email='contact@truenary.com',
-    url='https://github.com/',
+    url='https://github.com/truenary/retack_pkg_python',
     packages=find_packages(),
     classifiers=[
         'Programming Language :: Python :: 3',
