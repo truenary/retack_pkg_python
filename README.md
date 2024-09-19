@@ -6,7 +6,7 @@ The Retack SDK for Django allows you to easily report errors to the Retack AI se
 
 You can install the Retack SDK using pip:
 
-    pip install retack-sdk-django==1.0.0
+    pip install retack-sdk-django==1.0.2
 
 ## Usage
 
