@@ -20,6 +20,14 @@ jobs:
       actions: write
 
     steps:
+      # Validate the branch
+      - name: Validate branch
+        run: |
+          if [ "$(git symbolic-ref --short HEAD)" != "main" ]; then
+            echo "Error: This workflow can only be run on the main branch."
+            exit 1
+          fi
+
       # Validate the release type
       - name: Validate release type
         run: |
