@@ -23,7 +23,7 @@ jobs:
       # Validate the branch
       - name: Validate branch
         run: |
-          if [ "$(git symbolic-ref --short HEAD)" != "main" ]; then
+          if [[ "${{ github.ref }}" != "refs/heads/main" ]]; then
             echo "Error: This workflow can only be run on the main branch."
             exit 1
           fi
