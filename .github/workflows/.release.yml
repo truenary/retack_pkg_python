@@ -1,0 +1,96 @@
+name: Release & Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: 'Specify release type: regular, alpha, beta, or rc'
+        required: true
+        default: 'regular'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      # Store the release type from workflow input to reuse it across steps
+      RELEASE_TYPE: ${{ github.event.inputs.release-type }}
+
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      # Validate the branch
+      - name: Validate branch
+        run: |
+          if [[ "${{ github.ref }}" != "refs/heads/main" ]]; then
+            echo "Error: This workflow can only be run on the main branch."
+            exit 1
+          fi
+
+      # Validate the release type
+      - name: Validate release type
+        run: |
+          if [[ "$RELEASE_TYPE" != "regular" && "$RELEASE_TYPE" != "alpha" && "$RELEASE_TYPE" != "beta" && "$RELEASE_TYPE" != "rc" ]]; then
+            echo "Error: Invalid release type '$RELEASE_TYPE'. It must be one of: regular, alpha, beta, or rc."
+            exit 1
+          fi
+  
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+
+      # Install dependencies from requirements.txt
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install wheel twine setuptools build
+
+      # Clean dist directory
+      - name: Clean dist directory
+        run: rm -rf dist/*
+
+      # Install Node.js dependencies
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      # Set Git user
+      - name: Set Git user
+        run: |
+          git config --global user.email ${{ secrets.GIT_USER_EMAIL }}
+          git config --global user.name ${{ secrets.GIT_USER_NAME }}
+
+      # Run release-it
+      - name: Run release-it
+        run: |
+          if [ "$RELEASE_TYPE" == "regular" ]; then
+            npx release-it
+          else
+            npx release-it --preRelease=$RELEASE_TYPE
+          fi
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
+
+      # Print success message if release-it completes successfully
+      - name: Print success message
+        if: success()
+        run: echo "Release and publishing completed successfully!"
+      
+        # If the release step fails, print and upload the NPM error log
+      - name: Print NPM error log
+        if: failure()
+        run: |
+          echo "Release process failed. Check the NPM error log for details."
+          cat /home/runner/.npm/_logs/*-debug-0.log
+
+      # Upload NPM error log if release fails
+      - name: Upload NPM error log
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: npm-error-log
+          path: /home/runner/.npm/_logs/*-debug-0.log
